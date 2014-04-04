@@ -1,71 +1,90 @@
-"""This module contains the fundamental parts of the API wrapper. The class job
-is to bootstrap the app with the correct URIs for the Blockr API."""
+"""
+This class contains the fundamental parts of the API wrapper. The class job
+is to bootstrap the API with defaults to work with the Blockr.io API
+"""
+import requests as r
 
-class ApiService(object):
-    """ The API service class, provies the backbone for the Api. """
+class Service(object):
+    """ The API service class, provies the backbone for the Api. Mostly
+        bootstrapping, and setup stuff. """
 
-    currency = None
-    data = None
-    base = None
-    url = 'blockr.io/'
-    version = 'api/v1/'
-    coin = 'coin/info/'
-    block = 'block/info/'
-    block_tx = 'block/txs/'
-    block_raw = 'block/raw/'
-    tx_info = 'tx/info/'
-    tx_unconf = 'zerotx/info/'
-    tx_info_raw = 'tx/raw/'
-    current_rate = 'exchangerate/current/'
-    addr = 'address/info/'
-    balance = 'address/balance/'
-    address_tx = 'address/txs/'
-    address_unspent = 'address/unspent/'
-    address_unconfirmed = 'address/unconfirmed/'
-    currencies = [
-        'litecoin',
-        'bitcoin',
-        'digitalcoin',
-        'quarkcoin',
-        'peercoin',
-        'megacoin'
-    ]
+    api = {
+        'base': '',
+        'version': 'api/v1/',
+        'uri': 'blockr.io/',
+        'exchange': 'exchangerate/current/',
+        'coin': {
+            'info': 'coin/info/',
+        },
+        'block': {
+            'info': 'block/info/',
+            'transaction': 'block/txs/',
+            'raw': 'block/raw/',
+        },
+        'transaction': {
+            'info': 'tx/info/',
+            'unconfirmed': 'zerotx/info/',
+            'raw': 'tx/raw/',
+        },
+        'address': {
+            'info': 'address/info/',
+            'balance': 'address/balance/',
+            'transaction': 'address/txs/',
+            'unspent': 'address/unspent/',
+            'unconfirmed': 'address/unconfirmed/',
+        },
+        'currencies': {
+            'available': [
+                'litecoin',
+                'bitcoin',
+                'digitalcoin',
+                'quarkcoin',
+                'peercoin',
+                'megacoin'
+            ]
+        }
+    }
 
-    def __init__(self, currency):
-        """ Set the user currency, and check if its allowed."""
+    def __init__(self, currency, data_type="json"):
+        """ Set the user currency, and check if its allowed. Else throw
+            and exeption. """
+        self.data_type = data_type
         self.currency = currency = currency.lower()
-        if currency in self.currencies:
-            self.build_url()
-        else: raise Exception(
-                """Only {1} are supported. The currency: "{0}" not allowed"""
-                   .format(self.currency, self.currencies))
 
-    def build_url(self):
-        """ Build the url according the users currency, and API version."""
-        if self.currency == 'bitcoin':
-            self.base = ''
+    def base_uri(self, currency):
+        """ Build the base URI for the current session. """
+        if currency == 'bitcoin':
+            self.api['base'] = ''
 
-        if self.currency == 'litecoin':
-            self.base = 'ltc.'
+        if currency == 'litecoin':
+            self.api['base'] = 'ltc.'
 
-        if self.currency == 'digitalcoin':
-            self.base = 'dgc.'
+        if currency == 'digitalcoin':
+            self.api['base'] = 'dgc.'
 
-        if self.currency == 'quarkcoin':
-            self.base = 'qrk.'
+        if currency == 'quarkcoin':
+            self.api['base'] = 'qrk.'
 
-        if self.currency == 'peercoin':
-            self.base = 'ppc.'
+        if currency == 'peercoin':
+            self.api['base'] = 'ppc.'
 
-        if self.currency == 'megacoin':
-            self.base = 'mec.'
+        if currency == 'megacoin':
+            self.api['base'] = 'mec.'
 
-        return 'http://{0}{1}{2}'.format(self.base, self.url, self.version)
+        if currency not in self.api['currencies']['available']:
+            raise Exception(
+                """
+                Only {1} are supported. The currency: "{0}" is not supported.
+                """.format(currency, self.api['currencies']['available']))
 
-    def execute(self, req):
-        """ The main caller method. HTTP reqs are passed via this method. """
-        if self.data == 'json':
-            return req.json()
-        if self.data == 'text':
-            return req.text
+        return 'http://{0}{1}{2}'.format(
+            self.api['base'], self.api['uri'], self.api['version']
+            )
 
+    def get(self, request_uri):
+        """ The function that calls the API. All calls go thru this method """
+        r.get(self.base_uri(self.currency))
+        if self.data_type == 'json':
+            return request_uri.json()
+        if self.data_type == 'text':
+            return request_uri.text
