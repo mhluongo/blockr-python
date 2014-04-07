@@ -2,7 +2,8 @@
 This class contains the fundamental parts of the API wrapper. The class job
 is to bootstrap the API with defaults to work with the Blockr.io API
 """
-import requests as r
+import requests as HTTP
+from blockr.utils import request_type
 
 class Service(object):
     """ The API service class, provies the backbone for the Api. Mostly
@@ -45,11 +46,12 @@ class Service(object):
         }
     }
 
-    def __init__(self, currency, data_type="json"):
+    def __init__(self, currency, data_type):
         """ Set the user currency, and check if its allowed. Else throw
             and exeption. """
         self.data_type = data_type
         self.currency = currency = currency.lower()
+        self.URL = self.base_uri(currency)
 
     def base_uri(self, currency):
         """ Build the base URI for the current session. """
@@ -83,8 +85,8 @@ class Service(object):
 
     def get(self, request_uri):
         """ The function that calls the API. All calls go thru this method """
-        r.get(self.base_uri(self.currency))
+        request_uri = request_type(request_uri)
         if self.data_type == 'json':
-            return request_uri.json()
+            return HTTP.get(self.URL + request_uri).json()
         if self.data_type == 'text':
-            return request_uri.text
+            return HTTP.get(self.URL + request_uri).text
