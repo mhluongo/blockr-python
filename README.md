@@ -12,15 +12,17 @@
 
 - Python 2.7 only for now.
 - [Requests](https://github.com/kennethreitz/requests)
+- [Simplejson](https://github.com/simplejson/simplejson)
 
 ###About
 
 Easily get data from the diffrent blockchains. Support for Blocks, addresses and transactions etc.
-Exchange rate API is currently BETA, but will provide usefull helper methods.
 
 ###Installation
 
-Clone the repository. (This will be a pip package one day in the future).
+```git clone https://github.com/stormpat/blockr-python.git```
+
+This might be a pip package one day...
 
 ###Documentation
 
@@ -50,34 +52,7 @@ This method reduces HTTP calls, minimizing your application response time.
 
 #### Chaining
 
-Right now you can chain requests together for the following API methods:
 
-- ```block_info()```
-- ```block_transaction()```
-- ```block_transaction_raw()```
-- ```transaction()```
-- ```transaction_unconfirmed()```
-- ```address()```
-- ```address_balance()```
-
-Example (these all will work)
-
-```python
-# Get info about a single block (int)
-block_info(153)
-
-# Get info about a single block (string)
-block_info('153')
-
-# Get info about a multiple blocks (list int)
-block_info([153,253,353])
-
-# Get info about a multiple blocks (list string)
-block_info(['153','253','353'])
-
-# For the insane (list mixed)
-block_info([153,'253','353', 453])
-```
 
 #### Coin API
 
